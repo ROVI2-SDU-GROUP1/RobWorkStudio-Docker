@@ -5,9 +5,7 @@ FROM ubuntu:16.04
 #Install dependencies
 
 RUN apt-get -y update
-RUN apt-get -y dist-upgrade
-RUN apt-cache madison libboost-dev
-RUN apt-get -y install subversion gcc g++ cmake libatlas-base-dev libxerces-c3.1 libxerces-c-dev libboost-dev libboost-date-time-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-test-dev libboost-thread-dev swig libqt4-dev ssh git
+RUN apt-get -y install subversion gcc g++ cmake libatlas-base-dev libxerces-c3.1 libxerces-c-dev libboost-dev libboost-date-time-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-test-dev libboost-thread-dev swig libqt4-dev libopencv-dev git
 
 #Fix issue with boots and qt4 interaction
 RUN echo "#ifndef Q_MOC_RUN" | cat - /usr/include/boost/type_traits/detail/has_binary_operator.hpp > tmp_file \
@@ -73,12 +71,12 @@ RUN cd rwh_build && cmake -DBUILD_camera=OFF -DCMAKE_BUILD_TYPE=Release ../RobWo
 RUN cd rwh_build && make -j$(nproc)
 #######################
 
-#Add environment variables to bashrc
-
-RUN echo "# ROBWORK #" >> .bashrc && echo " export RW_ROOT=/home/rw_user/RobWork/RobWork/" >> .bashrc \
-	&& echo "export RWHW_ROOT=/home/rw_user/RobWork/RobWorkHardware/" >> .bashrc && echo "export RWS_ROOT=r/home/rw_user/RobWork/RobWorkStudio/" >> .bashrc
-
-USER rw_user
+#Add environment variables
+ENV RW_ROOT=/home/rw_user/RobWork/RobWork/
+ENV RWHW_ROOT=/home/rw_user/RobWork/RobWorkHardware/
+ENV RWS_ROOT=r/home/rw_user/RobWork/RobWorkStudio/
+ENV RobWork_DIR=/home/rw_user/RobWork/RobWork/cmake
+ENV RobWorkStudio_DIR=/home/rw_user/RobWork/RobWorkStudio/cmake
 
 ENTRYPOINT [ "RobWork/RobWorkStudio/bin/release/RobWorkStudio" ]
 
