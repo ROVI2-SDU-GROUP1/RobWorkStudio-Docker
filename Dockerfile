@@ -7,7 +7,7 @@ FROM ubuntu:16.04
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 RUN apt-cache madison libboost-dev
-RUN apt-get -y install subversion gcc g++ cmake libatlas-base-dev libxerces-c3.1 libxerces-c-dev libboost-dev libboost-date-time-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-test-dev libboost-thread-dev swig libqt4-dev ssh
+RUN apt-get -y install subversion gcc g++ cmake libatlas-base-dev libxerces-c3.1 libxerces-c-dev libboost-dev libboost-date-time-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-test-dev libboost-thread-dev swig libqt4-dev ssh git
 
 #Fix issue with boots and qt4 interaction
 RUN echo "#ifndef Q_MOC_RUN" | cat - /usr/include/boost/type_traits/detail/has_binary_operator.hpp > tmp_file \
@@ -80,5 +80,5 @@ RUN echo "# ROBWORK #" >> .bashrc && echo " export RW_ROOT=/home/rw_user/RobWork
 
 USER rw_user
 
-ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "RobWork/RobWorkStudio/bin/release/RobWorkStudio" ]
 
