@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ros:kinetic-robot
 
 #Docker file for running RobworkStudio
 
