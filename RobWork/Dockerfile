@@ -29,6 +29,9 @@ ENV LC_ALL en_US.UTF-8
 
 RUN svn checkout https://svnsrv.sdu.dk/svn/RobWork/trunk RobWork --username Guest --password '' --non-interactive
 
+#Apply ur patch
+ADD ur_bind_patch.diff ur_bind_patch.diff
+RUN cd RobWork && patch -p0 -i ../ur_bind_patch.diff
 #####################
 #Create Robwork build directory
 

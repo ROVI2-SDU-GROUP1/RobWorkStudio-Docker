@@ -1,0 +1,89 @@
+Index: RobWorkHardware/src/rwhw/universalrobots/URCallBackInterface.cpp
+===================================================================
+--- RobWorkHardware/src/rwhw/universalrobots/URCallBackInterface.cpp	(revision 6163)
++++ RobWorkHardware/src/rwhw/universalrobots/URCallBackInterface.cpp	(working copy)
+@@ -188,12 +188,12 @@
+     }
+ 
+ 
+-    void vector3d2intVector(const Vector3D<>& vec, std::vector<int>& integers, int offset) {
+-		RW_ASSERT(offset+2 < integers.size());
+-        integers[offset] = vec[0]*FLOAT_TO_INT_SCALE;
+-		integers[offset+1] = vec[1]*FLOAT_TO_INT_SCALE;
+-		integers[offset+2] = vec[2]*FLOAT_TO_INT_SCALE;
+-    }
++    void vector3d2intVector(const Vector3D<>& vec, std::vector<int>& integers, int offset) {
++		RW_ASSERT(offset+2 < integers.size());
++        integers[offset] = vec[0]*FLOAT_TO_INT_SCALE;
++		integers[offset+1] = vec[1]*FLOAT_TO_INT_SCALE;
++		integers[offset+2] = vec[2]*FLOAT_TO_INT_SCALE;
++    }
+ 
+ 
+     void wrench2intVector(const Wrench6D<>& wrench, std::vector<int>& integers, int offset) {
+@@ -278,9 +278,9 @@
+ 		integers[1] = cmd._id;
+ 		integers[2] = cmd._bValue;
+ 		break;
+-    case URScriptCommand::SET_PAYLOAD:
+-		integers[1] = cmd._mass*FLOAT_TO_INT_SCALE;
+-		vector3d2intVector(cmd._centerOfGravity, integers, 2);
++    case URScriptCommand::SET_PAYLOAD:
++		integers[1] = cmd._mass*FLOAT_TO_INT_SCALE;
++		vector3d2intVector(cmd._centerOfGravity, integers, 2);
+         break;    
+ 	case URScriptCommand::SET_TCPTRANSFORM:
+ 		t2intVector(cmd._transform, integers, 1);		
+@@ -306,7 +306,8 @@
+ 	boost::asio::io_service io_service;
+ 	RW_LOG_DEBUG("Callback IP = "<<_callbackIP);
+ 	RW_LOG_DEBUG("Callback Port = "<<_callbackPort);
+-	tcp::acceptor acceptor(io_service, tcp::endpoint(_callbackIP, _callbackPort));
++    	boost::asio::ip::address bind_ip = boost::asio::ip::address::from_string("0.0.0.0");
++	tcp::acceptor acceptor(io_service, tcp::endpoint(bind_ip, _callbackPort));
+ 	while(!_stopServer)
+ 	{
+             tcp::socket socket(io_service);
+@@ -492,24 +493,24 @@
+ 	_robotStopped = false;
+ }
+ 
+-void URCallBackInterface::setPayload(double mass, const Vector3D<>& centerOfGravity) {
+-	RW_LOG_DEBUG("rwhw::URCallBackInterface::setPayLoad("<<mass<<","<<centerOfGravity<<")");
+-    boost::mutex::scoped_lock lock(_mutex);
+-    popAllUpdateCommands();
+-
+-    _commands.push(URScriptCommand(URScriptCommand::SET_PAYLOAD, mass, centerOfGravity));
+-    _robotStopped = false;
+-}
+-
+-
++void URCallBackInterface::setPayload(double mass, const Vector3D<>& centerOfGravity) {
++	RW_LOG_DEBUG("rwhw::URCallBackInterface::setPayLoad("<<mass<<","<<centerOfGravity<<")");
++    boost::mutex::scoped_lock lock(_mutex);
++    popAllUpdateCommands();
+ 
++    _commands.push(URScriptCommand(URScriptCommand::SET_PAYLOAD, mass, centerOfGravity));
++    _robotStopped = false;
++}
++
++
++
+ void URCallBackInterface::setTCPTransform(const rw::math::Transform3D<>& endTtcp)
+ {
+-	RW_LOG_DEBUG("rwhw::URCallBackInterface::setTCPTransform(" << endTtcp << ")");
+-	boost::mutex::scoped_lock lock(_mutex);
+-	popAllUpdateCommands();
+-
+-	_commands.push(URScriptCommand(URScriptCommand::SET_TCPTRANSFORM, endTtcp));
+-	_robotStopped = false;
++	RW_LOG_DEBUG("rwhw::URCallBackInterface::setTCPTransform(" << endTtcp << ")");
++	boost::mutex::scoped_lock lock(_mutex);
++	popAllUpdateCommands();
+ 
+-}
+\ No newline at end of file
++	_commands.push(URScriptCommand(URScriptCommand::SET_TCPTRANSFORM, endTtcp));
++	_robotStopped = false;
++
++}
