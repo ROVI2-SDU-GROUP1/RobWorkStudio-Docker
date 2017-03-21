@@ -24,9 +24,7 @@ ENV LC_ALL en_US.UTF-8
 
 RUN svn checkout https://svnsrv.sdu.dk/svn/RobWork/trunk RobWork --username Guest --password '' --non-interactive
 
-#Apply ur patch
-ADD ur_bind_patch.diff ur_bind_patch.diff
-RUN cd RobWork && patch -p0 -i ../ur_bind_patch.diff
+
 #####################
 #Create Robwork build directory
 
@@ -54,6 +52,12 @@ RUN cd rws_build && cmake -DCMAKE_BUILD_TYPE=Release ../RobWork/RobWorkStudio
 
 RUN cd rws_build && make -j$(nproc)
 #######################
+
+#Apply ur patch to robworkhardware
+ADD ur_bind_patch.diff ur_bind_patch.diff
+ADD urscript_patch.diff urscript_patch.diff
+RUN cd RobWork && patch -p0 -i ../ur_bind_patch.diff
+RUN cd RobWork && patch -p0 -i ../urscript_patch.diff
 
 #######################
 #Create RobWorkHardware build directory
