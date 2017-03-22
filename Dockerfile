@@ -18,67 +18,60 @@ WORKDIR /home/rw_user
 
 #Svn is useless and won't checkout if the locales is not set to utf-8..
 
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
-ENV LC_ALL en_US.UTF-8
+ENV 	LANG=en_US.UTF-8 \
+	LANGUAGE=en_US:en \
+	LC_ALL=en_US.UTF-8
 
 RUN svn checkout https://svnsrv.sdu.dk/svn/RobWork/trunk RobWork --username Guest --password '' --non-interactive
 
 
 #####################
-#Create Robwork build directory
+#Compile RobWork
 
-RUN mkdir rw_build
+RUN 	mkdir rw_build && \
+	cd rw_build && \
+	cmake -DCMAKE_BUILD_TYPE=Release ../RobWork/RobWork && \
+	make -j$(nproc)	
 
-#Run cmake
-
-RUN cd rw_build && cmake -DCMAKE_BUILD_TYPE=Release ../RobWork/RobWork
-
-#Compile Robwork
-
-RUN cd rw_build && make -j$(nproc)
 ######################
 
 ######################
-#Create RobworkStudio build directory
-
-RUN mkdir rws_build
-
-#Run cmake
-
-RUN cd rws_build && cmake -DCMAKE_BUILD_TYPE=Release ../RobWork/RobWorkStudio
-
 #Compile RobworkStudio
 
-RUN cd rws_build && make -j$(nproc)
-#######################
-
-#Apply ur patch to robworkhardware
-ADD ur_bind_patch.diff ur_bind_patch.diff
-ADD urscript_patch.diff urscript_patch.diff
-RUN cd RobWork && patch -p0 -i ../ur_bind_patch.diff
-RUN cd RobWork && patch -p0 -i ../urscript_patch.diff
+RUN 	mkdir rws_build && \
+	cd rws_build && \
+	cmake -DCMAKE_BUILD_TYPE=Release ../RobWork/RobWorkStudio && \
+	make -j$(nproc)
 
 #######################
-#Create RobWorkHardware build directory
 
-RUN mkdir rwh_build
+#######################
+#Apply patches to robworkhardware
 
-#Run cmake
+ADD u*.diff ./
+RUN 	cd RobWork && \
+ 	patch -p0 -i ../ur_bind_patch.diff && \
+	patch -p0 -i ../urscript_patch.diff
 
-RUN cd rwh_build && cmake -DBUILD_camera=OFF -DCMAKE_BUILD_TYPE=Release ../RobWork/RobWorkHardware
+########################
 
+
+#######################
 #Compile RobWorkHardware
 
-RUN cd rwh_build && make -j$(nproc)
+RUN 	mkdir rwh_build && \
+	cd rwh_build && \
+	cmake -DBUILD_camera=OFF -DCMAKE_BUILD_TYPE=Release ../RobWork/RobWorkHardware && \
+	make -j$(nproc)
+
 #######################
 
-#Add environment variables
-ENV RW_ROOT=/home/rw_user/RobWork/RobWork/
-ENV RWHW_ROOT=/home/rw_user/RobWork/RobWorkHardware/
-ENV RWS_ROOT=r/home/rw_user/RobWork/RobWorkStudio/
-ENV RobWork_DIR=/home/rw_user/RobWork/RobWork/cmake
-ENV RobWorkStudio_DIR=/home/rw_user/RobWork/RobWorkStudio/cmake
+#Add environment variables for compiling stuff which dependts on robwork
+ENV 	RW_ROOT=/home/rw_user/RobWork/RobWork/ \
+	RWHW_ROOT=/home/rw_user/RobWork/RobWorkHardware/ \
+	RWS_ROOT=r/home/rw_user/RobWork/RobWorkStudio/ \
+	RobWork_DIR=/home/rw_user/RobWork/RobWork/cmake \
+	RobWorkStudio_DIR=/home/rw_user/RobWork/RobWorkStudio/cmake
 
 ENTRYPOINT [ "RobWork/RobWorkStudio/bin/release/RobWorkStudio" ]
 
